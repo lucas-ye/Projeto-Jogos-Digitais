@@ -10,7 +10,7 @@ SCREEN_WIDTH = 800
 SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
 CAPTION = "Projeto de Jogos Digitais"
 
-def main():
+def mover():
     # centralizar a tela do jogo
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     # iniciar pygame
@@ -21,11 +21,11 @@ def main():
     SCREEN = pg.display.set_mode(SCREEN_SIZE)  
     # loop principal
     while True:
-
+        SCREEN.fill((255, 255, 255))
         for event in pg.event.get():
             if event.type == QUIT:
                 pg.quit()
                 sys.exit()
         pg.display.update()
 
-main()
+mover()
