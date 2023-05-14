@@ -21,6 +21,17 @@ class Mario():
         self.frame_index = 0
         self.mario_frame_init()
         self.image = self.right_mario_frame[self.frame_index]
+        self.allow_jump = True
+        self.facing_right = True
+        self.state = "walk"
+
+        self.x_vel = 0
+        self.y_vel = 0
+        self.max_x_vel = 6
+        self.max_y_vel = 11
+        self.x_accel = 0.15
+        self.jump_vel = -10
+        self.gravity = 1.01
 
     # obter frame do mario
     def get_image(self, x, y, width, height):
@@ -56,7 +67,13 @@ class Mario():
         for frame in self.right_mario_frame:
             self.left_mario_frame.append(pg.transform.flip(frame, True, False))
 
-    def mover(self, keys):
+    def check_to_allow_jump(self, keys):
+        """Verificar se pode pular"""
+        if not (keys[pg.K_SPACE] or keys[pg.K_UP]):
+            self.allow_jump = True
+
+    '''
+    def tratar_keys(self, keys):
         # pular
         if keys[pg.K_SPACE] or keys[pg.K_UP]:
             print("pular")
@@ -65,14 +82,125 @@ class Mario():
             print("esquerda")
         # para direita
         if keys[pg.K_RIGHT]:
-            self.frame_index+=1
-            if self.frame_index == 4:
-                self.frame_index = 1
-            print(self.frame_index)
-            self.image = self.right_mario_frame[self.frame_index]
+            self.correr(keys)
+            # self.frame_index+=1
+            # if self.frame_index == 4:
+            #     self.frame_index = 1
+            # self.image = self.right_mario_frame[self.frame_index]
         # agachar
         if keys[pg.K_DOWN]:
             print("agachar")
+    '''
+    def parado(self, keys):
+        pass
+    
+    def pular(self, keys):
+        pass
+
+    def correr(self, keys):
+        self.allow_jump = self.check_to_allow_jump(keys)
+        if self.frame_index == 0:
+            self.frame_index += 1
+            self.walking_timer = self.current_time
+        else:
+            if (self.current_time - self.walking_timer >
+                    self.calculate_animation_speed()):
+                if self.frame_index < 3:
+                    self.frame_index += 1
+                else:
+                    self.frame_index = 1
+
+                self.walking_timer = self.current_time
+        if keys[pg.K_SPACE] or keys[pg.K_UP]:
+            if self.allow_jump:
+                # setup.SFX['big_jump'].play()
+                self.state = 'jump'
+                if self.x_vel > 4.5 or self.x_vel < -4.5:
+                    self.y_vel = -10 - .5
+                else:
+                    self.y_vel = -10
+
+
+        if keys[pg.K_LEFT]:
+            # self.get_out_of_crouch()
+            self.facing_right = False
+            if self.x_vel > 0:
+                self.frame_index = 5
+                self.x_accel = 0.35
+            else:
+                self.x_accel = 0.15
+
+            if self.x_vel > (self.max_x_vel * -1):
+                self.x_vel -= self.x_accel
+                if self.x_vel > -0.5:
+                    self.x_vel = -0.5
+            elif self.x_vel < (self.max_x_vel * -1):
+                self.x_vel += self.x_accel
+
+        elif keys[pg.K_RIGHT]:
+            # self.get_out_of_crouch()
+            self.facing_right = True
+            if self.x_vel < 0:
+                self.frame_index = 5
+                self.x_accel = 0.35
+            else:
+                self.x_accel = 0.15
+
+            if self.x_vel < self.max_x_vel:
+                self.x_vel += self.x_accel
+                if self.x_vel < 0.5:
+                    self.x_vel = 0.5
+            elif self.x_vel > self.max_x_vel:
+                self.x_vel -= self.x_accel
+
+        else:
+            if self.facing_right:
+                if self.x_vel > 0:
+                    self.x_vel -= self.x_accel
+                else:
+                    self.x_vel = 0
+                    self.state = "stand"
+            else:
+                if self.x_vel < 0:
+                    self.x_vel += self.x_accel
+                else:
+                    self.x_vel = 0
+                    self.state = "stand"
+
+    def calculate_animation_speed(self):
+        """Used to make walking animation speed be in relation to
+        Mario's x-vel"""
+        if self.x_vel == 0:
+            animation_speed = 130
+        elif self.x_vel > 0:
+            animation_speed = 130 - (self.x_vel * (13))
+        else:
+            animation_speed = 130 - (self.x_vel * (13) * -1)
+
+        return animation_speed
+
+    def update(self, keys, game_info):
+        """Updates Mario's states and animations once per frame"""
+        self.current_time = game_info["current_time"]
+        self.handle_state(keys)
+        self.animation()
+    
+    def animation(self):
+        if self.facing_right:
+            self.image = self.right_mario_frame[self.frame_index]
+        else:
+            self.image = self.left_mario_frame[self.frame_index]
+
+    def handle_state(self, keys):
+        """Determines Mario's behavior based on his state"""
+        if self.state == "stand":
+            self.parado(keys)
+        elif self.state == "walk":
+            print("entrou no walk")
+            self.correr(keys)
+        elif self.state == "jump":
+            self.pular(keys)
+
 def main():
     # centralizar a tela do jogo
     os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -90,16 +218,18 @@ def main():
         SCREEN.blit(mario.image, 
                     (SCREEN_WIDTH/2-mario.image.get_rect().centerx, 
                      SCREEN_HEIGHT - mario.image.get_rect().height - 20))
+        game_info = {}
+        game_info["current_time"] = pg.time.get_ticks()
         for event in pg.event.get():
             if event.type == QUIT:
                 pg.quit()
                 sys.exit()
             elif event.type == pg.KEYDOWN:
                 keys = pg.key.get_pressed()
-                mario.mover(keys)
+                mario.update(keys, game_info)
             elif event.type == pg.KEYUP:
                 keys = pg.key.get_pressed()
-                mario.mover(keys)
+                mario.update(keys, game_info)
         pg.display.update()
 
 main()
