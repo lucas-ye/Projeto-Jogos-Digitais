@@ -114,18 +114,49 @@ class Mario():
         else:
             self.state = 'stand'
     
-    def pular(self, keys):
-        pass
+    def jumping(self, keys):
+        print("jumping")
+        self.allow_jump = False
+        self.frame_index = 4
+        self.gravity = 0.31
+        self.y_vel += self.gravity
+
+        if self.y_vel >= 0 and self.y_vel < self.max_y_vel:
+            self.gravity = 1.01
+            self.state = 'fall'
+
+        if keys[pg.K_LEFT]:
+            if self.x_vel > (self.max_x_vel * - 1):
+                self.x_vel -= self.x_accel
+
+        elif keys[pg.K_RIGHT]:
+            if self.x_vel < self.max_x_vel:
+                self.x_vel += self.x_accel
+
+        if not (keys[pg.K_SPACE] or keys[pg.K_UP]):
+            self.gravity = 1.01
+            self.state = "fall"
+
+    def falling(self, keys):
+        """Called when Mario is in a FALL state"""
+        print("falling")
+        if self.y_vel < 11:
+            self.y_vel += self.gravity
+
+        if keys[pg.K_LEFT]:
+            if self.x_vel > (self.max_x_vel * - 1):
+                self.x_vel -= self.x_accel
+
+        elif keys[pg.K_RIGHT]:
+            if self.x_vel < self.max_x_vel:
+                self.x_vel += self.x_accel
 
     def walking(self, keys):
         self.allow_jump = self.check_to_allow_jump(keys)
         if self.frame_index == 0:
             self.frame_index += 1
             self.walking_timer = self.current_time
-            print("frame_index == 0")
         else:
-            print(self.current_time, self.walking_timer,
-                    self.calculate_animation_speed())
             if (self.current_time - self.walking_timer >
                     self.calculate_animation_speed()):
                 if self.frame_index < 3:
@@ -162,6 +193,7 @@ class Mario():
 
         elif keys[pg.K_RIGHT]:
             # self.get_out_of_crouch()
+            print("right")
             self.facing_right = True
             if self.x_vel < 0:
                 self.frame_index = 5
@@ -183,13 +215,13 @@ class Mario():
                 else:
                     self.x_vel = 0
                     self.state = "stand"
-                    print("stand right")
             else:
                 if self.x_vel < 0:
                     self.x_vel += self.x_accel
                 else:
                     self.x_vel = 0
                     self.state = "stand"
+                    
     def calculate_animation_speed(self):
         """Used to make walking animation speed be in relation to
         Mario's x-vel"""
@@ -219,11 +251,11 @@ class Mario():
         if self.state == "stand":
             self.parado(keys)
         elif self.state == "walk":
-            print("entrou no walk")
             self.walking(keys)
         elif self.state == "jump":
-            print("entrou no jump")
-            self.pular(keys)
+            self.jumping(keys)
+        elif self.state == "fall":
+            self.falling(keys)
 
 def main():
     # centralizar a tela do jogo
@@ -255,10 +287,8 @@ def main():
             elif event.type == pg.KEYUP:
                 keys = pg.key.get_pressed()
                 # mario.update(keys, game_info)
-        # print(keys)
+        print(mario.y_vel)
         mario.update(keys, game_info)
-        if keys[pg.K_LEFT] == True:
-            break
         pg.display.update()
 
 main()
