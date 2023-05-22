@@ -36,7 +36,7 @@ class Level1:
     def setup_background(self):
         """Sets the background image, rect and scales it to the correct
         proportions"""
-        self.background = pg.image.load("./resources/graphics/level.png")
+        self.background = pg.image.load("./resources/graphics/level1.png")
         self.back_rect = self.background.get_rect()
         self.background = pg.transform.scale(self.background,
                                   (int(self.back_rect.width*2.679),
