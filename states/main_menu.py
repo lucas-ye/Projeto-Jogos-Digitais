@@ -1,9 +1,15 @@
 import pygame as pg
-import state
 from .. import setup
-from .. import constants as c
+from .. import state
 from .. components import info, mario
+import os
+import sys
 
+# Constantes
+SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 800
+SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+CAPTION = "Projeto de Jogos Digitais"
 
 class Menu(state._State):
     def __init__(self):
@@ -39,14 +45,14 @@ class Menu(state._State):
         dest = (220, 358)
         self.cursor.image, self.cursor.rect = self.get_image(
             24, 160, 8, 8, dest, setup.GFX['item_objects'])
-        self.cursor.state = c.PLAYER1
+        self.cursor.state = "PLAYER1"
 
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
         self.mario = mario.Mario()
         self.mario.rect.x = 110
-        self.mario.rect.bottom = c.GROUND_HEIGHT
+        self.mario.rect.bottom = SCREEN_HEIGHT - 62
 
 
     def setup_background(self):
@@ -105,7 +111,7 @@ class Menu(state._State):
         """Update the position of the cursor"""
         input_list = [pg.K_RETURN, pg.K_a, pg.K_s]
 
-        if self.cursor.state == c.PLAYER1:
+        if self.cursor.state == "PLAYER1":
             self.cursor.rect.y = 358
             if keys[pg.K_DOWN]:
                 self.cursor.state = c.PLAYER2
@@ -116,7 +122,7 @@ class Menu(state._State):
         elif self.cursor.state == c.PLAYER2:
             self.cursor.rect.y = 403
             if keys[pg.K_UP]:
-                self.cursor.state = c.PLAYER1
+                self.cursor.state = "PLAYER1"
 
 
     def reset_game_info(self):
@@ -127,3 +133,23 @@ class Menu(state._State):
         self.game_info[c.LEVEL_STATE] = None
 
         self.persist = self.game_info
+
+os.environ['SDL_VIDEO_CENTERED'] = '1'
+# iniciar pygame
+pg.init()
+# setar quais eventos sao aceitos
+pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
+pg.display.set_caption(CAPTION)
+SCREEN = pg.display.set_mode(SCREEN_SIZE)  
+SCREEN.fill((100, 100, 100))
+overhead_info = OverheadInfo(game_info, 'time_out')
+# loop principal
+overhead_info.draw(SCREEN)
+pg.draw.line(SCREEN, (0, 0, 0), (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT), 1)
+while True:
+    # SCREEN.fill((255, 255, 255))
+    for event in pg.event.get():
+        if event.type == QUIT:
+            pg.quit()
+            sys.exit()
+    pg.display.update()

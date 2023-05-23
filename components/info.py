@@ -3,11 +3,11 @@ import sys
 import pygame as pg
 from pygame.locals import *
 
-# Constantes
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 800
-SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
-CAPTION = "Projeto de Jogos Digitais"
+# # Constantes
+# SCREEN_HEIGHT = 600
+# SCREEN_WIDTH = 800
+# SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+# CAPTION = "Projeto de Jogos Digitais"
 
 class Character(pg.sprite.Sprite):
     """Parent class for all characters used for the overhead level info"""
@@ -406,24 +406,24 @@ game_info  = {"score": 0,
                    "camera_start": 0,
                    "mario_dead": False}
 
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-# iniciar pygame
-pg.init()
-# setar quais eventos sao aceitos
-pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-pg.display.set_caption(CAPTION)
-SCREEN = pg.display.set_mode(SCREEN_SIZE)  
-SCREEN.fill((100, 100, 100))
-overhead_info = OverheadInfo(game_info, 'time_out')
-# loop principal
-overhead_info.draw(SCREEN)
-pg.draw.line(SCREEN, (0, 0, 0), (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT), 1)
-while True:
-    # SCREEN.fill((255, 255, 255))
-    for event in pg.event.get():
-        if event.type == QUIT:
-            pg.quit()
-            sys.exit()
-    pg.display.update()
+# os.environ['SDL_VIDEO_CENTERED'] = '1'
+# # iniciar pygame
+# pg.init()
+# # setar quais eventos sao aceitos
+# pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
+# pg.display.set_caption(CAPTION)
+# SCREEN = pg.display.set_mode(SCREEN_SIZE)  
+# SCREEN.fill((100, 100, 100))
+# overhead_info = OverheadInfo(game_info, 'time_out')
+# # loop principal
+# overhead_info.draw(SCREEN)
+# pg.draw.line(SCREEN, (0, 0, 0), (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT), 1)
+# while True:
+#     # SCREEN.fill((255, 255, 255))
+#     for event in pg.event.get():
+#         if event.type == QUIT:
+#             pg.quit()
+#             sys.exit()
+#     pg.display.update()
 
 
