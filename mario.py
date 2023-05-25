@@ -3,14 +3,6 @@ import sys
 import pygame as pg
 from pygame.locals import *
 
-
-# Constantes
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 800
-SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
-CAPTION = "Projeto de Jogos Digitais"
-
-
 class Mario():
     # construtor
     def __init__(self):
@@ -21,6 +13,7 @@ class Mario():
         self.frame_index = 0
         self.mario_frame_init()
         self.image = self.right_mario_frame[self.frame_index]
+        self.rect = self.image.get_rect()
         self.allow_jump = True
         self.facing_right = True
         self.state = "walk"
@@ -38,13 +31,11 @@ class Mario():
         """Extracts image from sprite sheet"""
         image = pg.Surface([width, height])
         rect = image.get_rect()
-        print(rect, rect.centerx)
         image.blit(self.mario_sprite_sheet, (0, 0), (x, y, width, height))
         image.set_colorkey((0, 0, 0))
         image = pg.transform.scale(image,
                                     (int(rect.width*2.5),
                                     int(rect.height*2.5)))
-        print(image.get_rect().center)
         return image
 
     # inicializar todos os frames do mario a partir do sprite_sheet
@@ -282,13 +273,8 @@ def main():
                 sys.exit()
             elif event.type == pg.KEYDOWN:
                 keys = pg.key.get_pressed()
-                # print("down", keys)
-                # mario.update(keys, game_info)
             elif event.type == pg.KEYUP:
                 keys = pg.key.get_pressed()
-                # mario.update(keys, game_info)
         print(mario.y_vel)
         mario.update(keys, game_info)
         pg.display.update()
-
-main()

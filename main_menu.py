@@ -1,20 +1,13 @@
 import pygame as pg
-from .. import setup
-from .. import state
-from .. components import info, mario
-import os
-import sys
-
-# Constantes
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 800
-SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
-CAPTION = "Projeto de Jogos Digitais"
+import state
+import info, mario
+import main
 
 class Menu(state._State):
     def __init__(self):
         """Initializes the state"""
         self.next = None
+        self.current_state = "main_menu"
         state._State.__init__(self)
         persist  = {"score": 0,
                    "lives": 3,
@@ -33,7 +26,7 @@ class Menu(state._State):
         self.game_info = persist
         self.overhead_info = info.OverheadInfo(self.game_info, 'main_menu')
 
-        self.sprite_sheet = setup.GFX['title_screen']
+        self.sprite_sheet = pg.image.load("./resources/graphics/title_screen1.png")
         self.setup_background()
         self.setup_mario()
         self.setup_cursor()
@@ -42,31 +35,31 @@ class Menu(state._State):
     def setup_cursor(self):
         """Creates the mushroom cursor to select 1 or 2 player game"""
         self.cursor = pg.sprite.Sprite()
-        dest = (220, 358)
+        dest = (260, 373)
         self.cursor.image, self.cursor.rect = self.get_image(
-            24, 160, 8, 8, dest, setup.GFX['item_objects'])
-        self.cursor.state = "PLAYER1"
+            24, 160, 8, 8, dest, pg.image.load("./resources/graphics/item_objects.png"))
+        self.cursor.state = "PLAY"
 
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
         self.mario = mario.Mario()
-        self.mario.rect.x = 110
-        self.mario.rect.bottom = SCREEN_HEIGHT - 62
+        self.mario.rect.x = 90
+        self.mario.rect.bottom = main.SCREEN_HEIGHT - 62
 
 
     def setup_background(self):
         """Setup the background image to blit"""
-        self.background = setup.GFX['level_1']
+        self.background = pg.image.load("./resources/graphics/level_1.png")
         self.background_rect = self.background.get_rect()
         self.background = pg.transform.scale(self.background,
-                                   (int(self.background_rect.width*c.BACKGROUND_MULTIPLER),
-                                    int(self.background_rect.height*c.BACKGROUND_MULTIPLER)))
-        self.viewport = setup.SCREEN.get_rect(bottom=setup.SCREEN_RECT.bottom)
+                                   (int(self.background_rect.width*2.679),
+                                    int(self.background_rect.height*2.679)))
+        self.viewport = main.SCREEN.get_rect(bottom=main.SCREEN_RECT.bottom)
 
         self.image_dict = {}
         self.image_dict['GAME_NAME_BOX'] = self.get_image(
-            1, 60, 176, 88, (170, 100), setup.GFX['title_screen'])
+            1, 60, 176, 88, (170, 100), self.sprite_sheet)
 
 
 
@@ -75,13 +68,13 @@ class Menu(state._State):
         image = pg.Surface([width, height])
         rect = image.get_rect()
         image.blit(sprite_sheet, (0, 0), (x, y, width, height))
-        if sprite_sheet == setup.GFX['title_screen']:
+        if sprite_sheet == self.sprite_sheet:
             image.set_colorkey((255, 0, 220))
             image = pg.transform.scale(image,
-                                   (int(rect.width*c.SIZE_MULTIPLIER),
-                                    int(rect.height*c.SIZE_MULTIPLIER)))
+                                   (int(rect.width*2.5),
+                                    int(rect.height*2.5)))
         else:
-            image.set_colorkey(c.BLACK)
+            image.set_colorkey((0, 0, 0))
             image = pg.transform.scale(image,
                                    (int(rect.width*3),
                                     int(rect.height*3)))
@@ -92,11 +85,11 @@ class Menu(state._State):
         return (image, rect)
 
 
-    def update(self, surface, keys, current_time):
+    def update(self, surface, keys, current_time, keydown):
         """Updates the state every refresh"""
         self.current_time = current_time
-        self.game_info[c.CURRENT_TIME] = self.current_time
-        self.update_cursor(keys)
+        self.game_info["current_time"] = self.current_time
+        self.update_cursor(keys, keydown)
         self.overhead_info.update(self.game_info)
 
         surface.blit(self.background, self.viewport, self.viewport)
@@ -107,49 +100,37 @@ class Menu(state._State):
         self.overhead_info.draw(surface)
 
 
-    def update_cursor(self, keys):
+    def update_cursor(self, keys, keydown):
         """Update the position of the cursor"""
-        input_list = [pg.K_RETURN, pg.K_a, pg.K_s]
-
-        if self.cursor.state == "PLAYER1":
-            self.cursor.rect.y = 358
-            if keys[pg.K_DOWN]:
-                self.cursor.state = c.PLAYER2
-            for input in input_list:
-                if keys[input]:
+        if keydown:
+            if self.cursor.state == "PLAY":
+                if keys[pg.K_DOWN]:
+                    self.cursor.state = "INSTRUCTION"
+                    self.cursor.rect.x = 237
+                    self.cursor.rect.y = 418
+                elif keys[pg.K_RETURN]:
                     self.reset_game_info()
                     self.done = True
-        elif self.cursor.state == c.PLAYER2:
-            self.cursor.rect.y = 403
-            if keys[pg.K_UP]:
-                self.cursor.state = "PLAYER1"
-
-
+                    print(input)
+            elif self.cursor.state == "INSTRUCTION":
+                if keys[pg.K_UP]:
+                    self.cursor.state = "PLAY"
+                    self.cursor.rect.x = 260
+                    self.cursor.rect.y = 373
+                elif keys[pg.K_DOWN]:
+                    self.cursor.state = "SOUND"
+                    self.cursor.rect.x = 134
+                    self.cursor.rect.y = 463
+            elif self.cursor.state == "SOUND":
+                if keys[pg.K_UP]:
+                    self.cursor.state = "INSTRUCTION"
+                    self.cursor.rect.x = 237
+                    self.cursor.rect.y = 418
     def reset_game_info(self):
         """resetar as informacoes do jogo"""
-        self.game_info[c.SCORE] = 0
-        self.game_info[c.LIVES] = 3
-        self.game_info[c.CURRENT_TIME] = 0.0
-        self.game_info[c.LEVEL_STATE] = None
+        self.game_info["score"] = 0
+        self.game_info["lives"] = 3
+        self.game_info["current_time"] = 0.0
+        self.game_info["level_state"] = None
 
         self.persist = self.game_info
-
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-# iniciar pygame
-pg.init()
-# setar quais eventos sao aceitos
-pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-pg.display.set_caption(CAPTION)
-SCREEN = pg.display.set_mode(SCREEN_SIZE)  
-SCREEN.fill((100, 100, 100))
-overhead_info = OverheadInfo(game_info, 'time_out')
-# loop principal
-overhead_info.draw(SCREEN)
-pg.draw.line(SCREEN, (0, 0, 0), (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT), 1)
-while True:
-    # SCREEN.fill((255, 255, 255))
-    for event in pg.event.get():
-        if event.type == QUIT:
-            pg.quit()
-            sys.exit()
-    pg.display.update()

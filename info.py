@@ -3,11 +3,6 @@ import sys
 import pygame as pg
 from pygame.locals import *
 
-# # Constantes
-# SCREEN_HEIGHT = 600
-# SCREEN_WIDTH = 800
-# SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
-# CAPTION = "Projeto de Jogos Digitais"
 
 class Character(pg.sprite.Sprite):
     """Parent class for all characters used for the overhead level info"""
@@ -163,7 +158,6 @@ class OverheadInfo(object):
         for i, letter in enumerate(label_list):
             letter.rect.x = x + ((letter.rect.width + 3) * i)
             letter.rect.y = y
-            print(i, letter.rect.x, letter.rect.y)
             if letter.image == self.image_dict['-']:
                 letter.rect.y += 7
                 letter.rect.x += 2
@@ -207,16 +201,12 @@ class OverheadInfo(object):
         play_game = []
         desligar_ligar_som = []
         top = []
-        top_score = []
 
-        self.create_label(play_game, 'PLAY GAME', 298, 315)
-        self.create_label(instruction, 'INSTRUCTION', 275, 360)
-        self.create_label(desligar_ligar_som, 'TURN OFF OR ON SOUND', 172, 405)
-        self.create_label(top, 'TOP - ', 290, 465)
-        self.create_label(top_score, '000000', 400, 465)
+        self.create_label(play_game, 'PLAY GAME', 298, 375)
+        self.create_label(instruction, 'INSTRUCTION', 275, 420)
+        self.create_label(desligar_ligar_som, 'TURN OFF OR ON SOUND', 172, 465)
 
-        self.main_menu_labels = [play_game, instruction, desligar_ligar_som,
-                                 top, top_score]
+        self.main_menu_labels = [play_game, instruction, desligar_ligar_som, top]
 
 
     def update(self, level_info, mario=None):
@@ -230,7 +220,6 @@ class OverheadInfo(object):
         if self.state == "main_menu":
             self.score = level_info["score"]
             self.update_score_images(self.score_images, self.score)
-            self.update_score_images(self.main_menu_labels[3], self.top_score)
 
         elif self.state == "load_screen":
             self.score = level_info["score"]
@@ -396,34 +385,3 @@ class OverheadInfo(object):
         for label in self.label_list:
             for letter in label:
                 surface.blit(letter.image, letter.rect)
-
-
-game_info  = {"score": 0,
-                   "lives": 3,
-                   "top_score": 0, # vai ser substituido por ranking
-                   "current_time": 0.0,
-                   "level_state": None,
-                   "camera_start": 0,
-                   "mario_dead": False}
-
-# os.environ['SDL_VIDEO_CENTERED'] = '1'
-# # iniciar pygame
-# pg.init()
-# # setar quais eventos sao aceitos
-# pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-# pg.display.set_caption(CAPTION)
-# SCREEN = pg.display.set_mode(SCREEN_SIZE)  
-# SCREEN.fill((100, 100, 100))
-# overhead_info = OverheadInfo(game_info, 'time_out')
-# # loop principal
-# overhead_info.draw(SCREEN)
-# pg.draw.line(SCREEN, (0, 0, 0), (SCREEN_WIDTH/2, 0), (SCREEN_WIDTH/2, SCREEN_HEIGHT), 1)
-# while True:
-#     # SCREEN.fill((255, 255, 255))
-#     for event in pg.event.get():
-#         if event.type == QUIT:
-#             pg.quit()
-#             sys.exit()
-#     pg.display.update()
-
-
