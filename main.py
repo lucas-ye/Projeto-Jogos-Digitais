@@ -2,7 +2,7 @@ import os
 import control
 import pygame as pg
 from pygame.locals import *
-import main_menu
+import main_menu, load_screen, level1
 
 # Constantes
 SCREEN_HEIGHT = 600
@@ -19,36 +19,13 @@ pg.init()
 pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
 pg.display.set_caption(CAPTION)
 
-# def main():
-
-#     keys = pg.key.get_pressed()
-#     current_time = pg.time.get_ticks()
-#     menu = main_menu.Menu()
-#     keydown = None
-#     # loop principal
-#     while True:
-
-#         for event in pg.event.get():
-#             if event.type == QUIT:
-#                 pg.quit()
-#                 sys.exit()
-#             elif event.type == pg.KEYDOWN:
-#                 keydown = True
-#                 keys = pg.key.get_pressed()
-#             elif event.type == pg.KEYUP:
-#                 keys = pg.key.get_pressed()
-        
-#         menu.update(SCREEN, keys, current_time, keydown)
-#         pg.display.update()
-#         keydown = False
-
 def main():
     """Add states to control here."""
     run_it = control.Control()
-    state_dict = {"main_menu": main_menu.Menu()
-                #   "load_screen": load_screen.LoadScreen(),
-                #   "time_out": load_screen.TimeOut(),
-                #   "game_over": load_screen.GameOver(),
+    state_dict = {"main_menu": main_menu.Menu(),
+                  "load_screen": load_screen.LoadScreen(),
+                  "time_out": load_screen.TimeOut(),
+                  "game_over": load_screen.GameOver()
                 #   "level1": level1.Level1()
                 }
 
