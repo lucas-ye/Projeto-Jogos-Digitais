@@ -25,8 +25,8 @@ def main():
     state_dict = {"main_menu": main_menu.Menu(),
                   "load_screen": load_screen.LoadScreen(),
                   "time_out": load_screen.TimeOut(),
-                  "game_over": load_screen.GameOver()
-                #   "level1": level1.Level1()
+                  "game_over": load_screen.GameOver(),
+                  "level1": level1.Level1()
                 }
 
     run_it.setup_states(state_dict, "main_menu")

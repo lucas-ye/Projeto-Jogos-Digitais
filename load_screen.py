@@ -1,5 +1,4 @@
 import state
-from .. import constants as c
 # import game_sound
 import info
 

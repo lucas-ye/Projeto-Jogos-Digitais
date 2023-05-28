@@ -3,9 +3,10 @@ import sys
 import pygame as pg
 from pygame.locals import *
 
-class Mario():
+class Mario(pg.sprite.Sprite):
     # construtor
     def __init__(self):
+        pg.sprite.Sprite.__init__(self)
         self.right_mario_frame = []
         self.left_mario_frame = []
         self.mario_sprite_sheet = pg.image.load("./resources/graphics/mario_bros.png")
@@ -16,6 +17,7 @@ class Mario():
         self.rect = self.image.get_rect()
         self.allow_jump = True
         self.facing_right = True
+        self.dead = False
         self.state = "walk"
 
         self.x_vel = 0
