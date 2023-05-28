@@ -25,7 +25,6 @@ class Level1(state._State):
         self.flag_score = None
         self.flag_score_total = 0
 
-        self.moving_score_list = []
         self.overhead_info_display = info.OverheadInfo(self.game_info, "level")
         # self.sound_manager = game_sound.Sound(self.overhead_info_display)
 
@@ -54,7 +53,7 @@ class Level1(state._State):
     def setup_ground(self):
         """Creates collideable, invisible rectangles over top of the ground for
         sprites to walk on"""
-        ground_rect1 = collider.Collider(0, 538, self.back_rect.height, 60)
+        ground_rect1 = collider.Collider(0, 538, self.back_rect.width, 60)
 
         self.ground_group = pg.sprite.Group(ground_rect1)
 
@@ -73,6 +72,7 @@ class Level1(state._State):
 
     def update(self, surface, keys, current_time):
         """Updates Entire level using states.  Called by the control object"""
+        print(self.mario.state)
         self.game_info["current_time"] = self.current_time = current_time
         self.handle_states(keys)
         self.check_if_time_out()
@@ -95,6 +95,7 @@ class Level1(state._State):
         """Updates mario in a transition state (like becoming big, small,
          or dies). Checks if he leaves the transition state or dies to
          change the level state back"""
+        self.mario.update(keys, self.game_info)
         if self.flag_score:
             self.flag_score.update(None, self.game_info)
             self.check_to_add_flag_score()
@@ -104,6 +105,7 @@ class Level1(state._State):
 
     def update_all_sprites(self, keys):
         """Updates the location of all sprites on the screen."""
+        self.mario.update(keys, self.game_info)
         if self.flag_score:
             self.flag_score.update(None, self.game_info)
             self.check_to_add_flag_score()
@@ -123,6 +125,10 @@ class Level1(state._State):
         self.last_x_position = self.mario.rect.right
         self.mario.rect.x += round(self.mario.x_vel)
         self.check_mario_x_collisions()
+
+        if self.mario.in_transition_state == False:
+            self.mario.rect.y += round(self.mario.y_vel)
+            self.check_mario_y_collisions()
 
         if self.mario.rect.x < (self.viewport.x + 5):
             self.mario.rect.x = (self.viewport.x + 5)
@@ -180,37 +186,23 @@ class Level1(state._State):
         if collider.rect.bottom > self.mario.rect.bottom:
             self.mario.y_vel = 0
             self.mario.rect.bottom = collider.rect.top
-            if self.mario.state == c.END_OF_LEVEL_FALL:
-                self.mario.state = c.WALKING_TO_CASTLE
-            else:
-                self.mario.state = c.WALK
+            self.mario.state = "walk"
         elif collider.rect.top < self.mario.rect.top:
             self.mario.y_vel = 7
             self.mario.rect.top = collider.rect.bottom
-            self.mario.state = c.FALL
+            self.mario.state = "fall"
 
 
     def test_if_mario_is_falling(self):
         """Changes Mario to a FALL state if more than a pixel above a pipe,
         ground, step or box"""
         self.mario.rect.y += 1
-        test_collide_group = pg.sprite.Group(self.ground_step_pipe_group,
-                                                 self.brick_group)
+        test_collide_group = pg.sprite.Group(self.ground_step_pipe_group)
 
 
         if pg.sprite.spritecollideany(self.mario, test_collide_group) is None:
-            if self.mario.state != c.JUMP \
-                and self.mario.state != c.DEATH_JUMP \
-                and self.mario.state != c.SMALL_TO_BIG \
-                and self.mario.state != c.BIG_TO_FIRE \
-                and self.mario.state != c.BIG_TO_SMALL \
-                and self.mario.state != c.FLAGPOLE \
-                and self.mario.state != c.WALKING_TO_CASTLE \
-                and self.mario.state != c.END_OF_LEVEL_FALL:
-                self.mario.state = c.FALL
-            elif self.mario.state == c.WALKING_TO_CASTLE or \
-                self.mario.state == c.END_OF_LEVEL_FALL:
-                self.mario.state = c.END_OF_LEVEL_FALL
+            if self.mario.state != "jump":
+                self.mario.state = 'fall'
 
         self.mario.rect.y -= 1
 
@@ -235,7 +227,7 @@ class Level1(state._State):
 
     def check_for_mario_death(self):
         """Restarts the level if Mario is dead"""
-        if self.mario.rect.y > main.SCREEN_HEIGHT and not self.mario.in_castle:
+        if self.mario.rect.y > main.SCREEN_HEIGHT:
             self.mario.dead = True
             self.mario.x_vel = 0
             self.state = 'frozen'
@@ -299,8 +291,6 @@ class Level1(state._State):
 
     def update_flag_and_fireworks(self):
         """Updates the level for the fireworks and castle flag"""
-        for score in self.moving_score_list:
-            score.update(self.moving_score_list, self.game_info)
         self.overhead_info_display.update(self.game_info)
 
         self.end_game()
@@ -326,5 +316,3 @@ class Level1(state._State):
         self.mario_and_enemy_group.draw(self.level)
         surface.blit(self.level, (0,0), self.viewport)
         self.overhead_info_display.draw(surface)
-        for score in self.moving_score_list:
-            score.draw(surface)

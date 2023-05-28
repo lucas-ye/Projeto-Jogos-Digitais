@@ -15,6 +15,7 @@ class Mario(pg.sprite.Sprite):
         self.mario_frame_init()
         self.image = self.right_mario_frame[self.frame_index]
         self.rect = self.image.get_rect()
+        self.in_transition_state = False
         self.allow_jump = True
         self.facing_right = True
         self.dead = False
@@ -108,7 +109,6 @@ class Mario(pg.sprite.Sprite):
             self.state = 'stand'
     
     def jumping(self, keys):
-        print("jumping")
         self.allow_jump = False
         self.frame_index = 4
         self.gravity = 0.31
@@ -132,7 +132,6 @@ class Mario(pg.sprite.Sprite):
 
     def falling(self, keys):
         """Called when Mario is in a FALL state"""
-        print("falling")
         if self.y_vel < 11:
             self.y_vel += self.gravity
 
@@ -145,7 +144,7 @@ class Mario(pg.sprite.Sprite):
                 self.x_vel += self.x_accel
 
     def walking(self, keys):
-        self.allow_jump = self.check_to_allow_jump(keys)
+        self.check_to_allow_jump(keys)
         if self.frame_index == 0:
             self.frame_index += 1
             self.walking_timer = self.current_time
@@ -186,7 +185,6 @@ class Mario(pg.sprite.Sprite):
 
         elif keys[pg.K_RIGHT]:
             # self.get_out_of_crouch()
-            print("right")
             self.facing_right = True
             if self.x_vel < 0:
                 self.frame_index = 5
@@ -277,6 +275,6 @@ def main():
                 keys = pg.key.get_pressed()
             elif event.type == pg.KEYUP:
                 keys = pg.key.get_pressed()
-        print(mario.y_vel)
         mario.update(keys, game_info)
         pg.display.update()
+# main()
