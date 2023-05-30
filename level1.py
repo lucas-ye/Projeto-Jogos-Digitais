@@ -1,9 +1,10 @@
 import pygame as pg
 import state, info
-# import game_sound
+import sound
 import mario
 import collider
 import main
+import fire
 
 
 class Level1(state._State):
@@ -26,12 +27,39 @@ class Level1(state._State):
         self.flag_score_total = 0
 
         self.overhead_info_display = info.OverheadInfo(self.game_info, "level")
-        # self.sound_manager = game_sound.Sound(self.overhead_info_display)
+        self.sound_manager = sound.Sound(self.overhead_info_display)
 
         self.setup_background()
         self.setup_ground()
         self.setup_mario()
+        self.setup_fire()
         self.setup_spritegroups()
+
+    def setup_fire(self):
+        # 52 x 60
+        fire1 = fire.Fire(500, 538)
+        fire2 = fire.Fire(800, 538)
+        fire3 = fire.Fire(800, 478)
+        fire4 = fire.Fire(1500, 538)
+        fire5 = fire.Fire(1500, 458)
+        fire6 = fire.Fire(2400, 538)
+        fire7 = fire.Fire(2400, 250)
+        fire8 = fire.Fire(3400, 538)
+        fire9 = fire.Fire(3400, 270)
+        fire10 = fire.Fire(4500, 538)
+        fire11 = fire.Fire(4500, 300)
+        fire12 = fire.Fire(5700, 538)
+        fire13 = fire.Fire(5700, 310)
+        fire14 = fire.Fire(6900, 538)
+        fire15 = fire.Fire(6952, 538)
+        fire16 = fire.Fire(8000, 538)
+        fire17 = fire.Fire(8052, 538)
+        fire18 = fire.Fire(8104, 538)
+        fire19 = fire.Fire(8052, 478)
+        self.fire_group1 = pg.sprite.Group(fire1, fire2, fire3, fire4, fire5, fire6, fire7, fire8, fire9, fire10, fire11, fire12, fire13, fire14, fire15, fire16, fire17, fire18, fire19)
+
+        # self.fire_group_list = [fire_group1]
+
 
     def setup_background(self):
         """Sets the background image, rect and scales it to the correct
@@ -54,8 +82,10 @@ class Level1(state._State):
         """Creates collideable, invisible rectangles over top of the ground for
         sprites to walk on"""
         ground_rect1 = collider.Collider(0, 538, self.back_rect.width, 60)
+        ground_rect2 = collider.Collider(self.back_rect.width, 0, 10, self.back_rect.height)
+        ground_rect3 = collider.Collider(0, 0, 10, self.back_rect.height)
 
-        self.ground_group = pg.sprite.Group(ground_rect1)
+        self.ground_group = pg.sprite.Group(ground_rect1, ground_rect2, ground_rect3)
 
 
     def setup_mario(self):
@@ -72,12 +102,11 @@ class Level1(state._State):
 
     def update(self, surface, keys, current_time):
         """Updates Entire level using states.  Called by the control object"""
-        print(self.mario.state)
         self.game_info["current_time"] = self.current_time = current_time
         self.handle_states(keys)
         self.check_if_time_out()
         self.blit_everything(surface)
-        # self.sound_manager.update(self.game_info, self.mario)
+        self.sound_manager.update(self.game_info, self.mario)
 
 
 
@@ -95,6 +124,7 @@ class Level1(state._State):
         """Updates mario in a transition state (like becoming big, small,
          or dies). Checks if he leaves the transition state or dies to
          change the level state back"""
+        self.fire_group1.update(self.game_info)
         self.mario.update(keys, self.game_info)
         if self.flag_score:
             self.flag_score.update(None, self.game_info)
@@ -105,6 +135,7 @@ class Level1(state._State):
 
     def update_all_sprites(self, keys):
         """Updates the location of all sprites on the screen."""
+        self.fire_group1.update(self.game_info)
         self.mario.update(keys, self.game_info)
         if self.flag_score:
             self.flag_score.update(None, self.game_info)
@@ -137,10 +168,13 @@ class Level1(state._State):
     def check_mario_x_collisions(self):
         """Check for collisions after Mario is moved on the x axis"""
         collider = pg.sprite.spritecollideany(self.mario, self.ground_step_pipe_group)
-
+        fire = pg.sprite.spritecollideany(self.mario, self.fire_group1)
 
         if collider:
             self.adjust_mario_for_x_collisions(collider)
+        elif fire:
+            self.mario.start_death_jump(self.game_info)
+            self.state = "frozen"
 
 
     def adjust_mario_for_x_collisions(self, collider):
@@ -157,9 +191,12 @@ class Level1(state._State):
         """Checks for collisions when Mario moves along the y-axis"""
         ground_step_or_pipe = pg.sprite.spritecollideany(self.mario, self.ground_step_pipe_group)
 
+
         if ground_step_or_pipe:
             self.adjust_mario_for_y_ground_pipe_collisions(ground_step_or_pipe)
 
+
+        
         self.test_if_mario_is_falling()
 
 
@@ -232,10 +269,8 @@ class Level1(state._State):
             self.mario.x_vel = 0
             self.state = 'frozen'
             self.game_info["mario_dead"] = True
-
         if self.mario.dead:
             self.play_death_song()
-
 
     def play_death_song(self):
         if self.death_timer == 0:
@@ -303,7 +338,7 @@ class Level1(state._State):
         elif (self.current_time - self.flag_timer) > 2000:
             self.set_game_info_values()
             self.next = "game_over"
-            # self.sound_manager.stop_music()
+            self.sound_manager.stop_music()
             self.done = True
 
 
@@ -314,5 +349,6 @@ class Level1(state._State):
             self.flag_score.draw(self.level)
         #self.check_point_group.draw(self.level)
         self.mario_and_enemy_group.draw(self.level)
+        self.fire_group1.draw(self.level)
         surface.blit(self.level, (0,0), self.viewport)
         self.overhead_info_display.draw(surface)

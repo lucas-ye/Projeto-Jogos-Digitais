@@ -18,6 +18,7 @@ class OverheadInfo(object):
     def __init__(self, game_info, state):
         self.sprite_sheet = pg.image.load("./resources/graphics/text_images.png")
         self.time = 401
+        self.time_up = 0
         self.current_time = 0
         self.total_lives = game_info["lives"]
         self.top_score = game_info["top_score"]
@@ -28,7 +29,6 @@ class OverheadInfo(object):
         self.create_score_group()
         self.create_info_labels()
         self.create_load_screen_labels()
-        self.create_countdown_clock()
         self.create_mario_image()
         self.create_game_over_label()
         self.create_time_out_label()
@@ -137,12 +137,6 @@ class OverheadInfo(object):
         self.create_label(number_label, '1-1', 430, 200)
 
         self.center_labels = [world_label, number_label]
-
-
-    def create_countdown_clock(self):
-        """Creates the count down clock for the level"""
-        self.count_down_images = []
-        self.create_label(self.count_down_images, str(self.time), 645, 55)
 
 
     def create_label(self, label_list, string, x, y):
@@ -270,7 +264,7 @@ class OverheadInfo(object):
         if self.state == "fast_count_down":
             self.time -= 1
 
-        elif (level_info["current_time"] - self.current_time) > 400:
+        elif (level_info["current_time"] - self.current_time) > 700:
             self.current_time = level_info["current_time"]
             self.time -= 1
         self.count_down_images = []
@@ -282,7 +276,6 @@ class OverheadInfo(object):
         elif len(self.count_down_images) < 3:
             self.count_down_images.insert(0, Character(self.image_dict['0']))
             self.set_label_rects(self.count_down_images, 645, 55)
-
 
     def draw(self, surface):
         """Draws overhead info based on state"""

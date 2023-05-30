@@ -21,6 +21,7 @@ class Mario(pg.sprite.Sprite):
         self.dead = False
         self.state = "walk"
 
+        self.death_timer = 0
         self.x_vel = 0
         self.y_vel = 0
         self.max_x_vel = 6
@@ -66,25 +67,6 @@ class Mario(pg.sprite.Sprite):
         if not (keys[pg.K_SPACE] or keys[pg.K_UP]):
             self.allow_jump = True
 
-    '''
-    def tratar_keys(self, keys):
-        # pular
-        if keys[pg.K_SPACE] or keys[pg.K_UP]:
-            print("pular")
-        # para esquerda
-        if keys[pg.K_LEFT]:
-            print("esquerda")
-        # para direita
-        if keys[pg.K_RIGHT]:
-            self.walking(keys)
-            # self.frame_index+=1
-            # if self.frame_index == 4:
-            #     self.frame_index = 1
-            # self.image = self.right_mario_frame[self.frame_index]
-        # agachar
-        if keys[pg.K_DOWN]:
-            print("agachar")
-    '''
     def parado(self, keys):
         self.check_to_allow_jump(keys)
 
@@ -166,7 +148,6 @@ class Mario(pg.sprite.Sprite):
                 else:
                     self.y_vel = -10
 
-
         if keys[pg.K_LEFT]:
             # self.get_out_of_crouch()
             self.facing_right = False
@@ -236,6 +217,23 @@ class Mario(pg.sprite.Sprite):
             self.image = self.right_mario_frame[self.frame_index]
         else:
             self.image = self.left_mario_frame[self.frame_index]
+    
+    def start_death_jump(self, game_info):
+        """Used to put Mario in a DEATH_JUMP state"""
+        self.dead = True
+        game_info["mario_dead"] = True
+        self.y_vel = -11
+        self.gravity = .5
+        self.state = "death_jump"
+        self.in_transition_state = True
+
+    def jumping_to_death(self):
+        """Called when Mario is in a DEATH_JUMP state"""
+        if self.death_timer == 0:
+            self.death_timer = self.current_time
+        elif (self.current_time - self.death_timer) > 500:
+            self.rect.y += self.y_vel
+            self.y_vel += self.gravity
 
     def handle_state(self, keys):
         """Determines Mario's behavior based on his state"""
@@ -247,6 +245,8 @@ class Mario(pg.sprite.Sprite):
             self.jumping(keys)
         elif self.state == "fall":
             self.falling(keys)
+        elif self.state == "death_jump":
+            self.jumping_to_death()
 
 def main():
     # centralizar a tela do jogo
