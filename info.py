@@ -1,5 +1,3 @@
-import os
-import sys
 import pygame as pg
 from pygame.locals import *
 
@@ -115,12 +113,15 @@ class OverheadInfo(object):
         self.world_label = []
         self.time_label = []
         self.stage_label = []
-
+        self.stage_label2 = []
+        self.stage_label3 = []
 
         self.create_label(self.mario_label, 'MARIO', 75, 30)
         self.create_label(self.world_label, 'LEVEL', 343, 30)
         self.create_label(self.time_label, 'TIME', 625, 30)
         self.create_label(self.stage_label, '1-1', 370, 55)
+        self.create_label(self.stage_label2, '1-2', 370, 55)
+        self.create_label(self.stage_label3, '1-3', 370, 55)
 
         self.label_list = [self.mario_label,
                            self.world_label,
@@ -193,14 +194,15 @@ class OverheadInfo(object):
         """Create labels for the MAIN MENU screen"""
         instruction = []
         play_game = []
-        desligar_ligar_som = []
+        self.desligar_som = []
+        self.ligar_som = []
         top = []
 
         self.create_label(play_game, 'PLAY GAME', 298, 375)
         self.create_label(instruction, 'INSTRUCTION', 275, 420)
-        self.create_label(desligar_ligar_som, 'TURN OFF OR ON SOUND', 172, 465)
-
-        self.main_menu_labels = [play_game, instruction, desligar_ligar_som, top]
+        self.create_label(self.desligar_som, 'TURN OFF THE SOUND', 172, 465)
+        self.create_label(self.ligar_som, ' TURN ON THE SOUND', 172, 465)
+        self.main_menu_labels = [play_game, instruction, top, None]
 
 
     def update(self, level_info, mario=None):
@@ -214,13 +216,23 @@ class OverheadInfo(object):
         if self.state == "main_menu":
             self.score = level_info["score"]
             self.update_score_images(self.score_images, self.score)
+            if level_info["sound"]:
+                self.main_menu_labels[3] = self.desligar_som
+            else:
+                self.main_menu_labels[3] = self.ligar_som
 
         elif self.state == "load_screen":
             self.score = level_info["score"]
             self.update_score_images(self.score_images, self.score)
 
-        elif self.state == "level":
+        elif self.state[:-1] == "level":
             self.score = level_info["score"]
+            if self.state[-1] == "1":
+                self.label_list[3] = self.stage_label
+            elif self.state[-1] == "2":
+                self.label_list[3] = self.stage_label2
+            elif self.state[-1] == "3":
+                self.label_list[3] = self.stage_label3
             self.update_score_images(self.score_images, self.score)
             if level_info["level_state"] != "frozen" \
                     and self.mario.state != "walking_to_castle" \
@@ -283,7 +295,7 @@ class OverheadInfo(object):
             self.draw_main_menu_info(surface)
         elif self.state == "load_screen":
             self.draw_loading_screen_info(surface)
-        elif self.state == "level":
+        elif self.state[:-1] == "level":
             self.draw_level_screen_info(surface)
         elif self.state == "game_over":
             self.draw_game_over_screen_info(surface)

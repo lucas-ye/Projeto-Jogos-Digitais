@@ -5,7 +5,7 @@ from pygame.locals import *
 
 class Mario(pg.sprite.Sprite):
     # construtor
-    def __init__(self):
+    def __init__(self, reverse, reverse_time):
         pg.sprite.Sprite.__init__(self)
         self.right_mario_frame = []
         self.left_mario_frame = []
@@ -21,6 +21,8 @@ class Mario(pg.sprite.Sprite):
         self.dead = False
         self.state = "walk"
 
+        self.reverse = reverse
+        self.reverse_time = reverse_time
         self.death_timer = 0
         self.x_vel = 0
         self.y_vel = 0
@@ -73,22 +75,32 @@ class Mario(pg.sprite.Sprite):
         self.frame_index = 0
         self.x_vel = 0
         self.y_vel = 0
-
-        if keys[pg.K_LEFT]:
-            self.facing_right = False
-            # self.get_out_of_crouch()
-            self.state = "walk"
-        elif keys[pg.K_RIGHT]:
-            self.facing_right = True
-            # self.get_out_of_crouch()
-            self.state = 'walk'
-        elif keys[pg.K_SPACE] or keys[pg.K_UP]:
-            if self.allow_jump:
-                # setup.SFX['big_jump'].play()
-                self.state = 'jump'
-                self.y_vel = -10
+        if self.reverse:
+            if keys[pg.K_LEFT]:
+                self.facing_right = True
+                self.state = "walk"
+            elif keys[pg.K_RIGHT]:
+                self.facing_right = False
+                self.state = 'walk'
+            elif keys[pg.K_SPACE] or keys[pg.K_UP]:
+                if self.allow_jump:
+                    self.state = 'jump'
+                    self.y_vel = -10
+            else:
+                self.state = 'stand'
         else:
-            self.state = 'stand'
+            if keys[pg.K_LEFT]:
+                self.facing_right = False
+                self.state = "walk"
+            elif keys[pg.K_RIGHT]:
+                self.facing_right = True
+                self.state = 'walk'
+            elif keys[pg.K_SPACE] or keys[pg.K_UP]:
+                if self.allow_jump:
+                    self.state = 'jump'
+                    self.y_vel = -10
+            else:
+                self.state = 'stand'
     
     def jumping(self, keys):
         self.allow_jump = False
@@ -99,14 +111,22 @@ class Mario(pg.sprite.Sprite):
         if self.y_vel >= 0 and self.y_vel < self.max_y_vel:
             self.gravity = 1.01
             self.state = 'fall'
+        if self.reverse:
+            if keys[pg.K_RIGHT]:
+                if self.x_vel > (self.max_x_vel * - 1):
+                    self.x_vel -= self.x_accel
 
-        if keys[pg.K_LEFT]:
-            if self.x_vel > (self.max_x_vel * - 1):
-                self.x_vel -= self.x_accel
+            elif keys[pg.K_LEFT]:
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
+        else:
+            if keys[pg.K_LEFT]:
+                if self.x_vel > (self.max_x_vel * - 1):
+                    self.x_vel -= self.x_accel
 
-        elif keys[pg.K_RIGHT]:
-            if self.x_vel < self.max_x_vel:
-                self.x_vel += self.x_accel
+            elif keys[pg.K_RIGHT]:
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
 
         if not (keys[pg.K_SPACE] or keys[pg.K_UP]):
             self.gravity = 1.01
@@ -116,14 +136,20 @@ class Mario(pg.sprite.Sprite):
         """Called when Mario is in a FALL state"""
         if self.y_vel < 11:
             self.y_vel += self.gravity
-
-        if keys[pg.K_LEFT]:
-            if self.x_vel > (self.max_x_vel * - 1):
-                self.x_vel -= self.x_accel
-
-        elif keys[pg.K_RIGHT]:
-            if self.x_vel < self.max_x_vel:
-                self.x_vel += self.x_accel
+        if self.reverse:
+            if keys[pg.K_RIGHT]:
+                if self.x_vel > (self.max_x_vel * - 1):
+                    self.x_vel -= self.x_accel
+            elif keys[pg.K_LEFT]:
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
+        else:
+            if keys[pg.K_LEFT]:
+                if self.x_vel > (self.max_x_vel * - 1):
+                    self.x_vel -= self.x_accel
+            elif keys[pg.K_RIGHT]:
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
 
     def walking(self, keys):
         self.check_to_allow_jump(keys)
@@ -147,52 +173,95 @@ class Mario(pg.sprite.Sprite):
                     self.y_vel = -10 - .5
                 else:
                     self.y_vel = -10
-
-        if keys[pg.K_LEFT]:
-            # self.get_out_of_crouch()
-            self.facing_right = False
-            if self.x_vel > 0:
-                self.frame_index = 5
-                self.x_accel = 0.35
-            else:
-                self.x_accel = 0.15
-
-            if self.x_vel > (self.max_x_vel * -1):
-                self.x_vel -= self.x_accel
-                if self.x_vel > -0.5:
-                    self.x_vel = -0.5
-            elif self.x_vel < (self.max_x_vel * -1):
-                self.x_vel += self.x_accel
-
-        elif keys[pg.K_RIGHT]:
-            # self.get_out_of_crouch()
-            self.facing_right = True
-            if self.x_vel < 0:
-                self.frame_index = 5
-                self.x_accel = 0.35
-            else:
-                self.x_accel = 0.15
-
-            if self.x_vel < self.max_x_vel:
-                self.x_vel += self.x_accel
-                if self.x_vel < 0.5:
-                    self.x_vel = 0.5
-            elif self.x_vel > self.max_x_vel:
-                self.x_vel -= self.x_accel
-
-        else:
-            if self.facing_right:
+        if self.reverse:
+            if keys[pg.K_RIGHT]:
+                self.facing_right = False
                 if self.x_vel > 0:
+                    self.frame_index = 5
+                    self.x_accel = 0.35
+                else:
+                    self.x_accel = 0.15
+
+                if self.x_vel > (self.max_x_vel * -1):
                     self.x_vel -= self.x_accel
-                else:
-                    self.x_vel = 0
-                    self.state = "stand"
-            else:
-                if self.x_vel < 0:
+                    if self.x_vel > -0.5:
+                        self.x_vel = -0.5
+                elif self.x_vel < (self.max_x_vel * -1):
                     self.x_vel += self.x_accel
+
+            elif keys[pg.K_LEFT]:
+                self.facing_right = True
+                if self.x_vel < 0:
+                    self.frame_index = 5
+                    self.x_accel = 0.35
                 else:
-                    self.x_vel = 0
-                    self.state = "stand"
+                    self.x_accel = 0.15
+
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
+                    if self.x_vel < 0.5:
+                        self.x_vel = 0.5
+                elif self.x_vel > self.max_x_vel:
+                    self.x_vel -= self.x_accel
+
+            else:
+                if self.facing_right:
+                    if self.x_vel > 0:
+                        self.x_vel -= self.x_accel
+                    else:
+                        self.x_vel = 0
+                        self.state = "stand"
+                else:
+                    if self.x_vel < 0:
+                        self.x_vel += self.x_accel
+                    else:
+                        self.x_vel = 0
+                        self.state = "stand"
+        else:
+            if keys[pg.K_LEFT]:
+                self.facing_right = False
+                if self.x_vel > 0:
+                    self.frame_index = 5
+                    self.x_accel = 0.35
+                else:
+                    self.x_accel = 0.15
+
+                if self.x_vel > (self.max_x_vel * -1):
+                    self.x_vel -= self.x_accel
+                    if self.x_vel > -0.5:
+                        self.x_vel = -0.5
+                elif self.x_vel < (self.max_x_vel * -1):
+                    self.x_vel += self.x_accel
+
+            elif keys[pg.K_RIGHT]:
+                # self.get_out_of_crouch()
+                self.facing_right = True
+                if self.x_vel < 0:
+                    self.frame_index = 5
+                    self.x_accel = 0.35
+                else:
+                    self.x_accel = 0.15
+
+                if self.x_vel < self.max_x_vel:
+                    self.x_vel += self.x_accel
+                    if self.x_vel < 0.5:
+                        self.x_vel = 0.5
+                elif self.x_vel > self.max_x_vel:
+                    self.x_vel -= self.x_accel
+
+            else:
+                if self.facing_right:
+                    if self.x_vel > 0:
+                        self.x_vel -= self.x_accel
+                    else:
+                        self.x_vel = 0
+                        self.state = "stand"
+                else:
+                    if self.x_vel < 0:
+                        self.x_vel += self.x_accel
+                    else:
+                        self.x_vel = 0
+                        self.state = "stand"
                     
     def calculate_animation_speed(self):
         """Used to make walking animation speed be in relation to

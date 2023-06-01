@@ -12,9 +12,11 @@ class Menu(state._State):
         persist  = {"score": 0,
                    "lives": 3,
                    "top_score": 0, # vai ser substituido por ranking
+                   "sound": True,
                    "current_time": 0.0,
                    "level_state": None,
                    "camera_start": 0,
+                   "level": 1,
                    "mario_dead": False}
         self.startup(0.0, persist)
 
@@ -43,7 +45,7 @@ class Menu(state._State):
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
-        self.mario = mario.Mario()
+        self.mario = mario.Mario(False, None)
         self.mario.rect.x = 90
         self.mario.rect.bottom = main.SCREEN_HEIGHT - 62
 
@@ -111,7 +113,6 @@ class Menu(state._State):
                 elif keys[pg.K_RETURN]:
                     self.reset_game_info()
                     self.done = True
-                    print(input)
             elif self.cursor.state == "INSTRUCTION":
                 if keys[pg.K_UP]:
                     self.cursor.state = "PLAY"
@@ -126,6 +127,13 @@ class Menu(state._State):
                     self.cursor.state = "INSTRUCTION"
                     self.cursor.rect.x = 237
                     self.cursor.rect.y = 418
+                elif keys[pg.K_RETURN]:
+                    if self.game_info["sound"]:
+                        self.game_info["sound"] = False
+                        print("som desligado")
+                    else:
+                        self.game_info["sound"] = True
+                        print("som ligado")
     def reset_game_info(self):
         """resetar as informacoes do jogo"""
         self.game_info["score"] = 0

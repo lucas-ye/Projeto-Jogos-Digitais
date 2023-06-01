@@ -7,10 +7,10 @@ import main
 import fire
 
 
-class Level1(state._State):
+class Level3(state._State):
     def __init__(self):
         super().__init__()
-        self.current_state = "level1"
+        self.current_state = "level3"
 
     def startup(self, current_time, persist):
         """Called when the State object is created"""
@@ -19,14 +19,13 @@ class Level1(state._State):
         self.game_info["current_time"] = current_time
         self.game_info["level_state"] = "not_frozen"
         self.game_info["mario_dead"] = False
-
+        self.game_info["level"] = 3
         self.state = "not_frozen"
         self.death_timer = 0
         self.flag_timer = 0
         self.flag_score = None
         self.flag_score_total = 0
-
-        self.overhead_info_display = info.OverheadInfo(self.game_info, "level1")
+        self.overhead_info_display = info.OverheadInfo(self.game_info, "level3")
         if self.game_info["sound"]:
             self.sound_manager = sound.Sound(self.overhead_info_display)
         else:
@@ -70,7 +69,7 @@ class Level1(state._State):
     def setup_background(self):
         """Sets the background image, rect and scales it to the correct
         proportions"""
-        self.background = pg.image.load("./resources/graphics/level_1.png")
+        self.background = pg.image.load("./resources/graphics/level_3.png")
         self.back_rect = self.background.get_rect()
         self.background = pg.transform.scale(self.background,
                                   (int(self.back_rect.width*2.679),
@@ -96,7 +95,7 @@ class Level1(state._State):
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
-        self.mario = mario.Mario(False, None)
+        self.mario = mario.Mario(True, None)
         self.mario.rect.x = self.viewport.x + 110
         self.mario.rect.bottom = 538
 
@@ -333,7 +332,7 @@ class Level1(state._State):
             self.flag_timer = self.current_time
         elif (self.current_time - self.flag_timer) > 2000:
             self.set_game_info_values()
-            self.next = "level2"
+            self.next = "game_over"
             if self.sound_manager:
                 self.sound_manager.stop_music()
             self.done = True

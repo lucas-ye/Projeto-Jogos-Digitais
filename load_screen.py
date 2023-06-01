@@ -1,5 +1,5 @@
 import state
-# import game_sound
+import sound
 import info
 
 BLACK = (0, 0, 0)
@@ -17,13 +17,18 @@ class LoadScreen(state._State):
         info_state = self.set_overhead_info_state()
 
         self.overhead_info = info.OverheadInfo(self.game_info, info_state)
-        # self.sound_manager = game_sound.Sound(self.overhead_info)
+        self.sound_manager = sound.Sound(self.overhead_info)
 
 
     def set_next_state(self):
         """Sets the next state"""
-        return "level1"
-
+        print(self.game_info["level"])
+        if self.game_info["level"] == 1:
+            return "level1"
+        elif self.game_info["level"] == 2:
+            return "level2"
+        elif self.game_info["level"] == 3:
+            return "level3"
     def set_overhead_info_state(self):
         """sets the state to send to the overhead info object"""
         return "load_screen"
@@ -67,7 +72,7 @@ class GameOver(LoadScreen):
         self.sound_manager.update(self.persist, None)
 
         if (self.current_time - self.start_time) < 7000:
-            surface.fill()
+            surface.fill(BLACK)
             self.overhead_info.update(self.game_info)
             self.overhead_info.draw(surface)
         elif (self.current_time - self.start_time) < 7200:

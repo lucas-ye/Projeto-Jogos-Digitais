@@ -29,7 +29,7 @@ class Sound(object):
 
     def set_music_mixer(self):
         """Sets music for level"""
-        if self.overhead_info.state == "level":
+        if self.overhead_info.state[:-1] == "level":
             pg.mixer.music.load(self.music_dict['main_theme'])
             pg.mixer.music.play()
             self.state = "normal"
@@ -43,7 +43,7 @@ class Sound(object):
         """Updates sound object with game info"""
         self.game_info = game_info
         self.mario = mario
-        self.handle_state()
+        # self.handle_state()
 
     def  handle_state(self):
         """Handles the state of the soundn object"""

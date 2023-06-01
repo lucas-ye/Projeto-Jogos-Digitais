@@ -2,7 +2,7 @@ import os
 import control
 import pygame as pg
 from pygame.locals import *
-import main_menu, load_screen, level1
+import main_menu, load_screen, level1, level2, level3
 
 # Constantes
 SCREEN_HEIGHT = 600
@@ -26,7 +26,9 @@ def main():
                   "load_screen": load_screen.LoadScreen(),
                   "time_out": load_screen.TimeOut(),
                   "game_over": load_screen.GameOver(),
-                  "level1": level1.Level1()
+                  "level1": level1.Level1(),
+                  "level2": level2.Level2(),
+                  "level2": level3.Level3(),
                 }
 
     run_it.setup_states(state_dict, "main_menu")
