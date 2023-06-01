@@ -95,7 +95,7 @@ class Level2(state._State):
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
-        self.mario = mario.Mario(True, None)
+        self.mario = mario.Mario(2)
         self.mario.rect.x = self.viewport.x + 110
         self.mario.rect.bottom = 538
 
@@ -332,7 +332,7 @@ class Level2(state._State):
             self.flag_timer = self.current_time
         elif (self.current_time - self.flag_timer) > 2000:
             self.set_game_info_values()
-            self.next = "game_over"
+            self.next = "level3"
             if self.sound_manager:
                 self.sound_manager.stop_music()
             self.done = True
@@ -347,4 +347,5 @@ class Level2(state._State):
         self.mario_and_enemy_group.draw(self.level)
         self.fire_group1.draw(self.level)
         surface.blit(self.level, (0,0), self.viewport)
+        self.overhead_info_display.update(self.game_info, self.mario)
         self.overhead_info_display.draw(surface)

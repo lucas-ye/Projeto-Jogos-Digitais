@@ -96,7 +96,7 @@ class Level1(state._State):
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
-        self.mario = mario.Mario(False, None)
+        self.mario = mario.Mario(1)
         self.mario.rect.x = self.viewport.x + 110
         self.mario.rect.bottom = 538
 

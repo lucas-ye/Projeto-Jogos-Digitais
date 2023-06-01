@@ -28,7 +28,7 @@ def main():
                   "game_over": load_screen.GameOver(),
                   "level1": level1.Level1(),
                   "level2": level2.Level2(),
-                  "level2": level3.Level3(),
+                  "level3": level3.Level3(),
                 }
 
     run_it.setup_states(state_dict, "main_menu")

@@ -45,7 +45,7 @@ class Menu(state._State):
 
     def setup_mario(self):
         """Places Mario at the beginning of the level"""
-        self.mario = mario.Mario(False, None)
+        self.mario = mario.Mario(1)
         self.mario.rect.x = 90
         self.mario.rect.bottom = main.SCREEN_HEIGHT - 62
 

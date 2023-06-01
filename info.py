@@ -132,12 +132,16 @@ class OverheadInfo(object):
     def create_load_screen_labels(self):
         """Creates labels for the center info of a load screen"""
         world_label = []
-        number_label = []
+        self.number_label = []
+        self.number_label2 = []
+        self.number_label3 = []
 
         self.create_label(world_label, 'WORLD', 280, 200)
-        self.create_label(number_label, '1-1', 430, 200)
+        self.create_label(self.number_label, '1-1', 430, 200)
+        self.create_label(self.number_label2, '1-2', 430, 200)
+        self.create_label(self.number_label3, '1-3', 430, 200)
 
-        self.center_labels = [world_label, number_label]
+        self.center_labels = [world_label, self.number_label]
 
 
     def create_label(self, label_list, string, x, y):
@@ -223,6 +227,13 @@ class OverheadInfo(object):
 
         elif self.state == "load_screen":
             self.score = level_info["score"]
+            if self.state[-1] == "1":
+                self.center_labels[1] = self.number_label
+            elif self.state[-1] == "2":
+                self.center_labels[1] = self.number_label2
+                print("level2")
+            elif self.state[-1] == "3":
+                self.center_labels[1] = self.number_label3
             self.update_score_images(self.score_images, self.score)
 
         elif self.state[:-1] == "level":
