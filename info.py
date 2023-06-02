@@ -228,6 +228,12 @@ class OverheadInfo(object):
         elif self.state == "load_screen":
             self.score = level_info["score"]
             if self.state[-1] == "1":
+                self.label_list[3] = self.stage_label
+            elif self.state[-1] == "2":
+                self.label_list[3] = self.stage_label2
+            elif self.state[-1] == "3":
+                self.label_list[3] = self.stage_label3
+            if self.state[-1] == "1":
                 self.center_labels[1] = self.number_label
             elif self.state[-1] == "2":
                 self.center_labels[1] = self.number_label2
